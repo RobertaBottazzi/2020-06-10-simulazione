@@ -5,8 +5,11 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +38,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,12 +51,27 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
+    	List<Actor> attoriSimili = new ArrayList<>();
+    	if(this.model.getGrafo()!=null) {
+    		attoriSimili=this.model.getAttoriSimili(this.boxAttore.getValue());
+    	}
+    	this.txtResult.appendText("Gli attori simili a "+this.boxAttore.getValue()+" sono: "+"\n");
+    	for(Actor a: attoriSimili) {
+    		this.txtResult.appendText((a.toString()+"\n"));
+    	}
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	String genre= this.boxGenere.getValue();
+    	if(genre!=null) {
+    		this.model.creaGrafo(genre);
+    		this.boxAttore.getItems().addAll(this.model.getGrafo().vertexSet());
+    		this.txtResult.appendText("Grafo creato con: "+this.model.getGrafo().vertexSet().size()+" e "+this.model.getGrafo().edgeSet().size()+" archi"+"\n");
+    	} else
+    		this.txtResult.setText("Selezionare un genere!");
     }
 
     @FXML
@@ -75,5 +93,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxGenere.getItems().addAll(this.model.getAllGenres());
     }
 }
